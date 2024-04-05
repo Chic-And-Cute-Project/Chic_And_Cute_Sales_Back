@@ -16,6 +16,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const UserRoutes = require("./routes/UserRoutes");
+app.use("/api/users", UserRoutes);
+
 app.get("/test-route", (_req, res) => {
     return res.status(200).json({
         "version": "0.0.0"
