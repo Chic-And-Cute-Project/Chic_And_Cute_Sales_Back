@@ -113,7 +113,74 @@ const loginUser = (req, res) => {
     });
 }
 
+const profile = (req, res) => {
+    User.findById(req.user.id).select({ password: 0 }).then(user => {
+        if (!user) {
+            return res.status(404).json({
+                "status": "error",
+                "message": "User doesn't exist"
+            });
+        }
+
+        return res.status(200).json({
+            "status": "success",
+            "user": user
+        });
+    }).catch(() => {
+        return res.status(404).json({
+            "status": "error",
+            "message": "Error while finding user"
+        });
+    });
+}
+
+const getAllSales = (_req, res) => {
+    User.find({ role: { $ne: "Admin" } }).sort('_id').then(users => {
+        if (!users) {
+            return res.status(404).json({
+                status: "Error",
+                message: "No users avaliable..."
+            });
+        }
+
+        return res.status(200).json({
+            "status": "success",
+            users
+        });
+    }).catch(error => {
+        return res.status(500).json({
+            "status": "error",
+            error
+        });
+    });
+}
+
+const updateUser = (req, res) => {
+    let id = req.query.idUser;
+
+    User.findOneAndUpdate({ _id: id }, req.body, { new: true }).then(userUpdated => {
+        if (!userUpdated) {
+            return res.status(404).json({
+                status: "error",
+                mensaje: "User not found"
+            });
+        }
+        return res.status(200).send({
+            status: "success",
+            user: userUpdated
+        });
+    }).catch(() => {
+        return res.status(404).json({
+            status: "error",
+            mensaje: "Error while finding and updating user"
+        });
+    });
+}
+
 module.exports = {
     register,
-    loginUser
+    loginUser,
+    profile,
+    getAllSales,
+    updateUser
 }
