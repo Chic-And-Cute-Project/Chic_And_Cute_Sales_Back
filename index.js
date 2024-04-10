@@ -18,6 +18,10 @@ app.use(express.urlencoded({ extended: true }));
 
 const UserRoutes = require("./routes/UserRoutes");
 app.use("/api/users", UserRoutes);
+const ProductRoutes = require("./routes/ProductRoutes");
+app.use("/api/products", ProductRoutes);
+const DiscountRoutes = require("./routes/DiscountRoutes");
+app.use("/api/discounts", DiscountRoutes);
 
 app.get("/test-route", (_req, res) => {
     return res.status(200).json({

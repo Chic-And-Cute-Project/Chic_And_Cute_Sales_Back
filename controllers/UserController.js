@@ -135,7 +135,7 @@ const profile = (req, res) => {
 }
 
 const getAllSales = (_req, res) => {
-    User.find({ role: { $ne: "Admin" } }).sort('_id').then(users => {
+    User.find({ role: { $ne: "Admin" } }).then(users => {
         if (!users) {
             return res.status(404).json({
                 status: "Error",
