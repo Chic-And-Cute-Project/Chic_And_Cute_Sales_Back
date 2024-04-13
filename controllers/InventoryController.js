@@ -154,10 +154,34 @@ const getByMySede = async (req, res) => {
     });
 }
 
+const getAvailableBySede = (req, res) => {
+    let sede = req.query.sede;
+
+    Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate('product').then(inventories => {
+        if (!inventories) {
+            return res.status(404).json({
+                status: "Error",
+                message: "No inventories avaliable..."
+            });
+        }
+
+        return res.status(200).json({
+            "status": "success",
+            inventories
+        });
+    }).catch(error => {
+        return res.status(500).json({
+            "status": "error",
+            error
+        });
+    });
+}
+
 module.exports = {
     create,
     list,
     getBySede,
     update,
-    getByMySede
+    getByMySede,
+    getAvailableBySede
 }
