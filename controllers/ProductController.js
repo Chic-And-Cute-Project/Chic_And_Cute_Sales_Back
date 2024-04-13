@@ -17,7 +17,7 @@ const create = async (req, res) => {
     }
 
     try {
-        const products = await Product.find({ code: productData.code, fullname: productData.fullName });
+        const products = await Product.find({ code: productData.code, fullName: productData.fullName });
 
         if (products && products.length >= 1) {
             return res.status(400).json({
