@@ -177,10 +177,32 @@ const updateUser = (req, res) => {
     });
 }
 
+const searchSales = (req, res) => {
+    User.find({ role: { $ne: "Admin" }, name: { $regex: req.query.userName, $options: 'i' } }).then(users => {
+        if (!users) {
+            return res.status(404).json({
+                status: "Error",
+                message: "No users avaliable..."
+            });
+        }
+
+        return res.status(200).json({
+            "status": "success",
+            users
+        });
+    }).catch(error => {
+        return res.status(500).json({
+            "status": "error",
+            error
+        });
+    });
+}
+
 module.exports = {
     register,
     loginUser,
     profile,
     getAllSales,
-    updateUser
+    updateUser,
+    searchSales
 }

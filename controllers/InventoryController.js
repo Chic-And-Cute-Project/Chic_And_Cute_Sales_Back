@@ -177,11 +177,83 @@ const getAvailableBySede = (req, res) => {
     });
 }
 
+const searchProductBySede = (req, res) => {
+    let sede = req.query.sede;
+    let productName = req.query.productName;
+
+    Inventory.find({ sede: sede }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
+        inventories = inventories.filter(inventory => inventory.product);
+        if (!inventories) {
+            return res.status(404).json({
+                status: "Error",
+                message: "No inventories avaliable..."
+            });
+        }
+
+        return res.status(200).json({
+            "status": "success",
+            inventories
+        });
+    }).catch(error => {
+        return res.status(500).json({
+            "status": "error",
+            error
+        });
+    });
+}
+
+const searchProductsByMySede = async (req, res) => {
+    let userId = new ObjectId(req.user.id);
+    let productName = req.query.productName;
+    let sede;
+
+    try {
+        const user = await User.findOne({ _id: userId });
+      
+        if (!user) {
+          return res.status(404).json({
+            status: "Error",
+            message: "No user available..."
+          });
+        }
+        
+        sede = user.sede;
+      
+    } catch (error) {
+        return res.status(500).json({
+          status: "error",
+          error
+        });
+    }
+    
+    Inventory.find({ sede: sede }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
+        inventories = inventories.filter(inventory => inventory.product);
+        if (!inventories) {
+            return res.status(404).json({
+                status: "Error",
+                message: "No inventories avaliable..."
+            });
+        }
+
+        return res.status(200).json({
+            "status": "success",
+            inventories
+        });
+    }).catch(error => {
+        return res.status(500).json({
+            "status": "error",
+            error
+        });
+    });
+}
+
 module.exports = {
     create,
     list,
     getBySede,
     update,
     getByMySede,
-    getAvailableBySede
+    getAvailableBySede,
+    searchProductBySede,
+    searchProductsByMySede
 }

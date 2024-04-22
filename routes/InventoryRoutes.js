@@ -10,5 +10,7 @@ router.get("/sede", InventoryController.getBySede);
 router.put("/", InventoryController.update);
 router.get("/mySede", check.auth, InventoryController.getByMySede);
 router.get("/availableSede", InventoryController.getAvailableBySede);
+router.get("/search", InventoryController.searchProductBySede);
+router.get("/mySearch", check.auth, InventoryController.searchProductsByMySede);
 
 module.exports = router;
