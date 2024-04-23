@@ -2,8 +2,7 @@ const { Schema, model } = require("mongoose");
 
 const RemissionGuideSchema = Schema({
     date: {
-        type: Date,
-        default: Date.now
+        type: Date
     },
     sedeFrom: {
         type: String
@@ -11,12 +10,20 @@ const RemissionGuideSchema = Schema({
     sedeTo: {
         type: String
     },
-    product: [{
-        type: Schema.ObjectId,
-        ref: "Product"
-    }],
+    products: [
+        {
+            product: {
+                type: Schema.ObjectId,
+                ref: "Product"
+            },
+            quantity: {
+                type: Number
+            }
+        }
+    ],
     status: {
-        type: String
+        type: String,
+        default: "Pendiente"
     }
 });
 
