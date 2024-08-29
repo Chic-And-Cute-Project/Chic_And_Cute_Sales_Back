@@ -12,14 +12,30 @@ const SaleSchema = Schema({
         type: Date,
         default: Date.now
     },
-    paymentMethod: [{
-        type: {
-            type: String
-        },
-        amount: {
-            type: Number
+    detail: [
+        {
+            product: {
+                type: Schema.ObjectId,
+                ref: "Product"
+            },
+            quantity: {
+                type: Number
+            },
+            discount: {
+                type: Number
+            }
         }
-    }]
+    ],
+    paymentMethod: [
+        {
+            type: {
+                type: String
+            },
+            amount: {
+                type: Number
+            }
+        }
+    ]
 });
 
 module.exports = model("Sale", SaleSchema, "sales");

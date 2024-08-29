@@ -1,8 +1,6 @@
 const { connection } = require("./database/connection");
 const express = require("express");
 const cors = require("cors");
-const http = require('http');
-const socketIo = require('socket.io');
 
 console.log("ChicAndCute backend api started");
 
@@ -33,18 +31,6 @@ app.get("/test-route", (_req, res) => {
     });
 });
 
-const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-        origin: ['http://localhost:4200'],
-        methods: ['GET', 'POST'],
-        credentials: true,
-    },
-});
-
-const requests = require('./socket-requests/requests');
-requests(io);
-
-server.listen(port, () => {
+app.listen(port, () => {
     console.log("Node server running in port:", port); 
 });
