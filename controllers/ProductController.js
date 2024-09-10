@@ -5,7 +5,6 @@ const create = async (req, res) => {
 
     if (!productBody.code || !productBody.fullName || !productBody.price) {
         return res.status(400).json({
-            "status": "error",
             "message": "Faltan datos"
         });
     }
@@ -21,7 +20,6 @@ const create = async (req, res) => {
 
         if (products && products.length >= 1) {
             return res.status(400).json({
-                "status": "success",
                 "message": "Ya existe un producto con el mismo nombre y codigo"
             });
         }
@@ -33,26 +31,20 @@ const create = async (req, res) => {
 
             if (!productStored) {
                 return res.status(500).json({
-                    "status": "error",
                     "message": "No product saved"
                 });
             }
 
             return res.status(200).json({
-                "status": "success",
-                "message": "Producto creado",
                 "product": productStored
             });
         } catch (error) {
             return res.status(500).json({
-                "status": "error",
-                "message": "Error while saving product",
-                error
+                "message": "Error while saving product"
             });
         }
     } catch {
         return res.status(500).json({
-            "status": "error",
             "message": "Error while finding product duplicate"
         });
     }
@@ -62,19 +54,16 @@ const list = (_req, res) => {
     Product.find().then(products => {
         if (!products) {
             return res.status(404).json({
-                status: "Error",
                 message: "No prouducts avaliable..."
             });
         }
 
         return res.status(200).json({
-            "status": "success",
             products
         });
-    }).catch(error => {
+    }).catch(() => {
         return res.status(500).json({
-            "status": "error",
-            error
+            "message": "Error while finding products"
         });
     });
 }

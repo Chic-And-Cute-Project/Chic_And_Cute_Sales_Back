@@ -7,8 +7,8 @@ const check = require("../authorization/auth");
 router.post("/register", UserController.register);
 router.post("/login", UserController.loginUser);
 router.get("/myObject", check.auth, UserController.profile);
-router.get("/getAllSales", UserController.getAllSales);
-router.get("/search", UserController.searchSales);
+router.get("/getAllSales", UserController.getAllUserSales);
+router.get("/search", UserController.searchUserSales);
 router.put("/", UserController.updateUser);
 
 module.exports = router;

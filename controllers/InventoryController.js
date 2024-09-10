@@ -1,15 +1,11 @@
 const Inventory = require("../models/InventoryModel");
 const User = require("../models/UserModel");
 
-const mongoose = require('mongoose');
-const ObjectId = mongoose.Types.ObjectId;
-
 const create = async (req, res) => {
     let inventoryBody = req.body;
 
     if (!inventoryBody.sede || !inventoryBody.product) {
         return res.status(400).json({
-            "status": "error",
             "message": "Faltan datos"
         });
     }
@@ -26,44 +22,18 @@ const create = async (req, res) => {
 
         if (!inventoryStored) {
             return res.status(500).json({
-                "status": "error",
                 "message": "No inventory saved"
             });
         }
 
         return res.status(200).json({
-            "status": "success",
-            "message": "Inventario creado",
             "inventory": inventoryStored
         });
     } catch (error) {
         return res.status(500).json({
-            "status": "error",
-            "message": "Error while saving inventory",
-            error
+            "message": "Error while saving inventory"
         });
     }
-}
-
-const list = (_req, res) => {
-    Inventory.find().then(inventories => {
-        if (!inventories) {
-            return res.status(404).json({
-                status: "Error",
-                message: "No inventories avaliable..."
-            });
-        }
-
-        return res.status(200).json({
-            "status": "success",
-            inventories
-        });
-    }).catch(error => {
-        return res.status(500).json({
-            "status": "error",
-            error
-        });
-    });
 }
 
 const getBySede = (req, res) => {
@@ -72,19 +42,16 @@ const getBySede = (req, res) => {
     Inventory.find({ sede: sede }).populate('product').then(inventories => {
         if (!inventories) {
             return res.status(404).json({
-                status: "Error",
-                message: "No inventories avaliable..."
+                "message": "No inventories avaliable..."
             });
         }
 
         return res.status(200).json({
-            "status": "success",
             inventories
         });
     }).catch(error => {
         return res.status(500).json({
-            "status": "error",
-            error
+            "message": "Error while finding inventories"
         });
     });
 }
@@ -95,24 +62,21 @@ const update = (req, res) => {
     Inventory.findOneAndUpdate({ _id: id }, req.body, { new: true }).then(inventoryUpdated => {
         if (!inventoryUpdated) {
             return res.status(404).json({
-                status: "error",
-                mensaje: "Inventory not found"
+                "mensaje": "Inventory not found"
             });
         }
         return res.status(200).send({
-            status: "success",
             inventory: inventoryUpdated
         });
     }).catch(() => {
         return res.status(404).json({
-            status: "error",
-            mensaje: "Error while finding and updating inventory"
+            "mensaje": "Error while finding and updating inventory"
         });
     });
 }
 
 const getByMySede = async (req, res) => {
-    let userId = new ObjectId(req.user.id);
+    let userId = req.user.id;
     let sede;
 
     try {
@@ -120,8 +84,7 @@ const getByMySede = async (req, res) => {
       
         if (!user) {
           return res.status(404).json({
-            status: "Error",
-            message: "No user available..."
+            "message": "No user available..."
           });
         }
       
@@ -129,27 +92,23 @@ const getByMySede = async (req, res) => {
       
     } catch (error) {
         return res.status(500).json({
-          status: "error",
-          error
+            "message": "Error while finding user"
         });
     }
 
     Inventory.find({ sede: sede }).populate('product').then(inventories => {
         if (!inventories) {
             return res.status(404).json({
-                status: "Error",
                 message: "No inventories avaliable..."
             });
         }
 
         return res.status(200).json({
-            "status": "success",
             inventories
         });
-    }).catch(error => {
+    }).catch(() => {
         return res.status(500).json({
-            "status": "error",
-            error
+            "message": "Error while finding inventories"
         });
     });
 }
@@ -185,25 +144,22 @@ const searchProductBySede = (req, res) => {
         inventories = inventories.filter(inventory => inventory.product);
         if (!inventories) {
             return res.status(404).json({
-                status: "Error",
-                message: "No inventories avaliable..."
+                "message": "No inventories avaliable..."
             });
         }
 
         return res.status(200).json({
-            "status": "success",
             inventories
         });
-    }).catch(error => {
+    }).catch(() => {
         return res.status(500).json({
-            "status": "error",
-            error
+            "message": "Error while finding inventories"
         });
     });
 }
 
 const searchProductsByMySede = async (req, res) => {
-    let userId = new ObjectId(req.user.id);
+    let userId = req.user.id;
     let productName = req.query.productName;
     let sede;
 
@@ -212,8 +168,7 @@ const searchProductsByMySede = async (req, res) => {
       
         if (!user) {
           return res.status(404).json({
-            status: "Error",
-            message: "No user available..."
+            "message": "No user available..."
           });
         }
         
@@ -221,8 +176,7 @@ const searchProductsByMySede = async (req, res) => {
       
     } catch (error) {
         return res.status(500).json({
-          status: "error",
-          error
+            "message": "Error while finding user"
         });
     }
     
@@ -230,26 +184,22 @@ const searchProductsByMySede = async (req, res) => {
         inventories = inventories.filter(inventory => inventory.product);
         if (!inventories) {
             return res.status(404).json({
-                status: "Error",
                 message: "No inventories avaliable..."
             });
         }
 
         return res.status(200).json({
-            "status": "success",
             inventories
         });
-    }).catch(error => {
+    }).catch(() => {
         return res.status(500).json({
-            "status": "error",
-            error
+            "message": "Error while finding inventories"
         });
     });
 }
 
 module.exports = {
     create,
-    list,
     getBySede,
     update,
     getByMySede,

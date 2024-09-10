@@ -1,12 +1,11 @@
 const jwt = require("jwt-simple");
 const moment = require("moment");
 
-const secret = "Secret_Key_ Chic_And_Cute_Back_022506";
+const secret = "Secret_Key_Chic_And_Cute_Back_022506";
 
 const createToken = (user) => {
     const payLoad = {
         id: user._id,
-        iat: moment().unix(),
         exp: moment().add(30, "days").unix()
     };
 

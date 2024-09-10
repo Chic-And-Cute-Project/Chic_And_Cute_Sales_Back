@@ -8,7 +8,6 @@ const register = async (req, res) => {
 
     if (!userBody.name || !userBody.lastName || !userBody.username || !userBody.password) {
         return res.status(400).json({
-            "status": "error",
             "message": "Faltan datos"
         });
     }
@@ -25,7 +24,6 @@ const register = async (req, res) => {
 
         if (userAlreadyExist.length >= 1) {
             return res.status(400).json({
-                "status": "error",
                 "message": "El usuario ya existe"
             });
         }
@@ -40,26 +38,21 @@ const register = async (req, res) => {
 
             if (!userStored) {
                 return res.status(500).json({
-                    "status": "error",
                     "message": "No user saved"
                 });
             }
 
             return res.status(200).json({
-                "status": "success",
-                "message": "Usuario registrado",
-                "user": userStored
+                "message": "Usuario registrado"
             });
 
         } catch {
             return res.status(500).json({
-                "status": "error",
                 "message": "Error while saving user"
             });
         }
     } catch {
         return res.status(500).json({
-            "status": "error",
             "message": "Error while finding user duplicate"
         });
     }
@@ -70,7 +63,6 @@ const loginUser = (req, res) => {
 
     if (!userBody.username || !userBody.password) {
         return res.status(400).json({
-            "status": "error",
             "message": "Faltan datos"
         });
     }
@@ -78,7 +70,6 @@ const loginUser = (req, res) => {
     User.findOne({ username: userBody.username }).then(user => {
         if (!user) {
             return res.status(400).json({
-                "status": "error",
                 "message": "Usuario no existe"
             });
         }
@@ -87,7 +78,6 @@ const loginUser = (req, res) => {
 
         if (!pwd) {
             return res.status(400).json({
-                "status": "error",
                 "message": "Contraseña incorrecta"
             });
         }
@@ -95,19 +85,12 @@ const loginUser = (req, res) => {
         const token = jwt.createToken(user);
 
         return res.status(200).json({
-            "status": "success",
-            "message": "Te haz identificado correctamente",
-            "user": {
-                "_id": user._id,
-                "username": user.username,
-                "role": user.role
-            },
-            token
+            token,
+            "role": user.role
         });
 
     }).catch(() => {
         return res.status(500).json({
-            "status": "error",
             "message": "Error while finding user"
         });
     });
@@ -117,40 +100,34 @@ const profile = (req, res) => {
     User.findById(req.user.id).select({ password: 0 }).then(user => {
         if (!user) {
             return res.status(404).json({
-                "status": "error",
                 "message": "User doesn't exist"
             });
         }
 
         return res.status(200).json({
-            "status": "success",
-            "user": user
+            user
         });
     }).catch(() => {
         return res.status(404).json({
-            "status": "error",
             "message": "Error while finding user"
         });
     });
 }
 
-const getAllSales = (_req, res) => {
+const getAllUserSales = (_req, res) => {
     User.find({ role: { $ne: "Admin" } }).then(users => {
         if (!users) {
             return res.status(404).json({
-                status: "Error",
                 message: "No users avaliable..."
             });
         }
 
         return res.status(200).json({
-            "status": "success",
             users
         });
-    }).catch(error => {
+    }).catch(() => {
         return res.status(500).json({
-            "status": "error",
-            error
+            "message": "Error while finding users"
         });
     });
 }
@@ -161,39 +138,33 @@ const updateUser = (req, res) => {
     User.findOneAndUpdate({ _id: id }, req.body, { new: true }).then(userUpdated => {
         if (!userUpdated) {
             return res.status(404).json({
-                status: "error",
                 mensaje: "User not found"
             });
         }
         return res.status(200).send({
-            status: "success",
             user: userUpdated
         });
     }).catch(() => {
         return res.status(404).json({
-            status: "error",
             mensaje: "Error while finding and updating user"
         });
     });
 }
 
-const searchSales = (req, res) => {
+const searchUserSales = (req, res) => {
     User.find({ role: { $ne: "Admin" }, name: { $regex: req.query.userName, $options: 'i' } }).then(users => {
         if (!users) {
             return res.status(404).json({
-                status: "Error",
                 message: "No users avaliable..."
             });
         }
 
         return res.status(200).json({
-            "status": "success",
             users
         });
-    }).catch(error => {
+    }).catch(() => {
         return res.status(500).json({
-            "status": "error",
-            error
+            "message": "Error while finding users"
         });
     });
 }
@@ -202,7 +173,7 @@ module.exports = {
     register,
     loginUser,
     profile,
-    getAllSales,
+    getAllUserSales,
     updateUser,
-    searchSales
+    searchUserSales
 }

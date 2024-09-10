@@ -1,15 +1,15 @@
 const { connection } = require("./database/connection");
 const express = require("express");
 const cors = require("cors");
+const dotenv = require('dotenv');
+dotenv.config();
 
 console.log("ChicAndCute backend api started");
 
-const uri = process.env.MONGO_URI || "mongodb+srv://joserodrigolopez:xK22YDi1adZJdw25@mongodbdeployed.nr8iyxd.mongodb.net/c&c_back";
-
-connection(uri);
+connection(process.env.MONGO_URI);
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

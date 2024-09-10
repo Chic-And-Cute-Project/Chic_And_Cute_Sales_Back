@@ -28,7 +28,7 @@ exports.auth = (req, res, next) => {
     } catch (error) {
         return res.status(404).json({
             "status": "error",
-            "message": "Invalid token"
+            "message": "Vuelva a iniciar sesión"
         });
     }
 
