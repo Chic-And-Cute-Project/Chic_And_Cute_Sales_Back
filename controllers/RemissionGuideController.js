@@ -1,15 +1,11 @@
 const RemissionGuide = require("../models/RemissionGuideModel");
 const User = require("../models/UserModel");
 
-const mongoose = require('mongoose');
-const ObjectId = mongoose.Types.ObjectId;
-
 const create = async (req, res) => {
     let remissionGuideBody = req.body;
 
     if (!remissionGuideBody.date || !remissionGuideBody.sedeFrom || !remissionGuideBody.sedeFrom) {
         return res.status(400).json({
-            "status": "error",
             "message": "Faltan datos"
         });
     }
@@ -28,21 +24,16 @@ const create = async (req, res) => {
 
         if (!remissionGuideStored) {
             return res.status(500).json({
-                "status": "error",
                 "message": "No product saved"
             });
         }
 
         return res.status(200).json({
-            "status": "success",
-            "message": "Guia de remision creada",
             "remissionGuide": remissionGuideStored
         });
     } catch (error) {
         return res.status(500).json({
-            "status": "error",
-            "message": "Error while saving remission guide",
-            error
+            "message": "Error while saving remission guide"
         });
     }
 }
@@ -51,19 +42,16 @@ const list = (_req, res) => {
     RemissionGuide.find().populate({ path: 'products', populate: 'product' }).then(remissionGuides => {
         if (!remissionGuides) {
             return res.status(404).json({
-                status: "Error",
-                message: "No remission guides avaliable..."
+                "message": "No remission guides avaliable..."
             });
         }
 
         return res.status(200).json({
-            "status": "success",
             remissionGuides
         });
-    }).catch(error => {
+    }).catch(() => {
         return res.status(500).json({
-            "status": "error",
-            error
+            "message": "Error while finding remission guides"
         });
     });
 }
@@ -74,24 +62,21 @@ const update = (req, res) => {
     RemissionGuide.findOneAndUpdate({ _id: id }, req.body, { new: true }).then(remissionGuideUpdated => {
         if (!remissionGuideUpdated) {
             return res.status(404).json({
-                status: "error",
-                mensaje: "Remission guide not found"
+                "mensaje": "Remission guide not found"
             });
         }
         return res.status(200).send({
-            status: "success",
             remissionGuide: remissionGuideUpdated
         });
     }).catch(() => {
         return res.status(404).json({
-            status: "error",
-            mensaje: "Error while finding and updating inventory"
+            "mensaje": "Error while finding and updating remission guide"
         });
     });
 }
 
 const getByMySede = async (req, res) => {
-    let userId = new ObjectId(req.user.id);
+    let userId = req.user.id;
     let sede;
 
     try {
@@ -99,8 +84,7 @@ const getByMySede = async (req, res) => {
       
         if (!user) {
           return res.status(404).json({
-            status: "Error",
-            message: "No user available..."
+            "message": "No user available..."
           });
         }
       
@@ -108,27 +92,23 @@ const getByMySede = async (req, res) => {
       
     } catch (error) {
         return res.status(500).json({
-          status: "error",
-          error
+            "message": "Error while finding user"
         });
     }
 
     RemissionGuide.find({ sedeTo: sede }).populate({ path: 'products', populate: 'product' }).then(remissionGuides => {
         if (!remissionGuides) {
             return res.status(404).json({
-                status: "Error",
-                message: "No remission guides avaliable..."
+                "message": "No remission guides avaliable..."
             });
         }
 
         return res.status(200).json({
-            "status": "success",
             remissionGuides
         });
-    }).catch(error => {
+    }).catch(() => {
         return res.status(500).json({
-            "status": "error",
-            error
+            "message": "Error while finding remission guides"
         });
     });
 }

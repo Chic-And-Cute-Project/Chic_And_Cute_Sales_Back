@@ -119,19 +119,16 @@ const getAvailableBySede = (req, res) => {
     Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate('product').then(inventories => {
         if (!inventories) {
             return res.status(404).json({
-                status: "Error",
-                message: "No inventories avaliable..."
+                "message": "No inventories avaliable..."
             });
         }
 
         return res.status(200).json({
-            "status": "success",
             inventories
         });
-    }).catch(error => {
+    }).catch(() => {
         return res.status(500).json({
-            "status": "error",
-            error
+            "message": "Error while finding inventories"
         });
     });
 }
