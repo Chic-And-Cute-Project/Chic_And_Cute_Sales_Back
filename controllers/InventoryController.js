@@ -99,7 +99,7 @@ const getByMySede = async (req, res) => {
     Inventory.find({ sede: sede }).populate('product').then(inventories => {
         if (!inventories) {
             return res.status(404).json({
-                message: "No inventories avaliable..."
+                "message": "No inventories avaliable..."
             });
         }
 
@@ -181,7 +181,7 @@ const searchProductsByMySede = async (req, res) => {
         inventories = inventories.filter(inventory => inventory.product);
         if (!inventories) {
             return res.status(404).json({
-                message: "No inventories avaliable..."
+                "message": "No inventories avaliable..."
             });
         }
 

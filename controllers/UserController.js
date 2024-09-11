@@ -118,7 +118,7 @@ const getAllUserSales = (_req, res) => {
     User.find({ role: { $ne: "Admin" } }).then(users => {
         if (!users) {
             return res.status(404).json({
-                message: "No users avaliable..."
+                "message": "No users avaliable..."
             });
         }
 
@@ -155,7 +155,7 @@ const searchUserSales = (req, res) => {
     User.find({ role: { $ne: "Admin" }, name: { $regex: req.query.userName, $options: 'i' } }).then(users => {
         if (!users) {
             return res.status(404).json({
-                message: "No users avaliable..."
+                "message": "No users avaliable..."
             });
         }
 

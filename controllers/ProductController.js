@@ -54,7 +54,7 @@ const list = (_req, res) => {
     Product.find().then(products => {
         if (!products) {
             return res.status(404).json({
-                message: "No prouducts avaliable..."
+                "message": "No prouducts avaliable..."
             });
         }
 

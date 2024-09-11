@@ -53,7 +53,7 @@ const list = (_req, res) => {
     Discount.find().then(discounts => {
         if (!discounts) {
             return res.status(404).json({
-                message: "No discounts avaliable..."
+                "message": "No discounts avaliable..."
             });
         }
 
