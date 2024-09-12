@@ -4,7 +4,7 @@ const create = async (req, res) => {
     let saleBody = req.body;
     let userId = req.user.id;
 
-    if (!saleBody.name || !saleBody.quantity) {
+    if (!saleBody.sede || !saleBody.paymentMethod || !saleBody.detail) {
         return res.status(400).json({
             "message": "Faltan datos"
         });

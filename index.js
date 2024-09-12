@@ -24,6 +24,8 @@ const InventoryRoutes = require("./routes/InventoryRoutes");
 app.use("/api/inventories", InventoryRoutes);
 const RemissionGuideRoutes = require("./routes/RemissionGuideRoutes");
 app.use("/api/remission-guides", RemissionGuideRoutes);
+const SaleRoutes = require("./routes/SaleRoutes");
+app.use("/api/sales", SaleRoutes);
 
 app.get("/test-route", (_req, res) => {
     return res.status(200).json({
