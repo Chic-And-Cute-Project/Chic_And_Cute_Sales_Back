@@ -1,4 +1,5 @@
 const Sale = require("../models/SaleModel");
+const User = require("../models/UserModel");
 
 const create = async (req, res) => {
     let saleBody = req.body;
@@ -38,16 +39,48 @@ const create = async (req, res) => {
     }
 }
 
-const list = (_req, res) => {
-    Sale.find().then(sales => {
+const myInfo = async (req, res) => {
+    let userId = req.user.id;
+    let sede;
+    let salesReport = [];
+
+    try {
+        const user = await User.findOne({ _id: userId });
+      
+        if (!user) {
+          return res.status(404).json({
+            "message": "No user available..."
+          });
+        }
+      
+        sede = user.sede;
+      
+    } catch (error) {
+        return res.status(500).json({
+            "message": "Error while finding user"
+        });
+    }
+    
+    Sale.find({ sede: sede, user: userId }).populate({ path: 'detail', populate: 'product' }).then(sales => {
         if (!sales) {
             return res.status(404).json({
                 "message": "No sales avaliable..."
             });
         }
 
+        sales.forEach(sale => {
+            sale.detail.forEach(detail => {
+                const saleReport = salesReport.find(saleReport => saleReport.product._id == detail.product._id);
+                if (!saleReport) {
+                    salesReport.push({ product: detail.product, quantity: detail.quantity});
+                } else {
+                    saleReport.quantity = saleReport.quantity + detail.quantity;
+                }
+            });
+        });
+
         return res.status(200).json({
-            sales
+            salesReport
         });
     }).catch(() => {
         return res.status(500).json({
@@ -58,5 +91,5 @@ const list = (_req, res) => {
 
 module.exports = {
     create,
-    list
+    myInfo
 }
