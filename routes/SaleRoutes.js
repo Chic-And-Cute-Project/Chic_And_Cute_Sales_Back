@@ -6,5 +6,6 @@ const check = require("../authorization/auth");
 
 router.post("/", check.auth, SaleController.create);
 router.get("/myInfo", check.auth, SaleController.myInfo);
+router.get("/infoAdmin", SaleController.infoAdmin);
 
 module.exports = router;

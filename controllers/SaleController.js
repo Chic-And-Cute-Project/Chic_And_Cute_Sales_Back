@@ -41,8 +41,12 @@ const create = async (req, res) => {
 
 const myInfo = async (req, res) => {
     let userId = req.user.id;
+    let minDate = req.query.minDate;
+    let maxDate = req.query.maxDate;
     let sede;
-    let salesReport = [];
+    let saleDetails = [];
+    let cash = 0;
+    let card = 0;
 
     try {
         const user = await User.findOne({ _id: userId });
@@ -69,18 +73,97 @@ const myInfo = async (req, res) => {
         }
 
         sales.forEach(sale => {
-            sale.detail.forEach(detail => {
-                const saleReport = salesReport.find(saleReport => saleReport.product._id == detail.product._id);
-                if (!saleReport) {
-                    salesReport.push({ product: detail.product, quantity: detail.quantity});
-                } else {
-                    saleReport.quantity = saleReport.quantity + detail.quantity;
-                }
-            });
+            if (sale.date <= new Date(maxDate) && sale.date >= new Date(minDate)) {
+                sale.detail.forEach(detail => {
+                    const saleReport = saleDetails.find(saleReport => saleReport.product._id == detail.product._id);
+                    if (!saleReport) {
+                        let price = detail.quantity * detail.product.price;
+                        price = price - price * detail.discount * 0.01;
+    
+                        saleDetails.push({ product: detail.product, quantity: detail.quantity, finalPrice: price});
+                    } else {
+                        let price = detail.quantity * detail.product.price;
+                        price = price - price * detail.discount * 0.01;
+    
+                        let roundedFinalPrice = saleReport.finalPrice + price;
+    
+                        saleReport.finalPrice = roundedFinalPrice.toFixed(2);
+    
+                        saleReport.quantity = saleReport.quantity + detail.quantity;
+                    }
+                });
+                sale.paymentMethod.forEach(payment => {
+                    if (payment.type == "Efectivo") {
+                        cash = cash + payment.amount;
+                    } else {
+                        card = card + payment.amount;
+                    }
+                });
+            }
         });
 
         return res.status(200).json({
-            salesReport
+            saleDetails,
+            cash,
+            card
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while finding sales"
+        });
+    });
+}
+
+const infoAdmin = async (req, res) => {
+    let userId = req.query.userId;
+    let minDate = req.query.minDate;
+    let maxDate = req.query.maxDate;
+    let sede = req.query.sede;
+    let saleDetails = [];
+    let cash = 0;
+    let card = 0;
+
+    Sale.find({ sede: sede, user: userId }).populate({ path: 'detail', populate: 'product' }).then(sales => {
+        if (!sales) {
+            return res.status(404).json({
+                "message": "No sales avaliable..."
+            });
+        }
+        
+        sales.forEach(sale => {
+            if (sale.date <= new Date(maxDate) && sale.date >= new Date(minDate)) {
+                sale.detail.forEach(detail => {
+                    const saleReport = saleDetails.find(saleReport => saleReport.product._id == detail.product._id);
+                    if (!saleReport) {
+                        let price = detail.quantity * detail.product.price;
+                        price = price - price * detail.discount * 0.01;
+    
+                        saleDetails.push({ product: detail.product, quantity: detail.quantity, finalPrice: price});
+                    } else {
+                        let price = detail.quantity * detail.product.price;
+                        price = price - price * detail.discount * 0.01;
+    
+                        let roundedFinalPrice = saleReport.finalPrice + price;
+    
+                        saleReport.finalPrice = roundedFinalPrice.toFixed(2);
+    
+                        saleReport.quantity = saleReport.quantity + detail.quantity;
+                    }
+                });
+                sale.paymentMethod.forEach(payment => {
+                    if (payment.type == "Efectivo") {
+                        cash = cash + payment.amount;
+                    } else {
+                        card = card + payment.amount;
+                    }
+                });
+            }
+        });
+
+        return res.status(200).json({
+            saleDetails,
+            cash,
+            card
         });
     }).catch(() => {
         return res.status(500).json({
@@ -91,5 +174,6 @@ const myInfo = async (req, res) => {
 
 module.exports = {
     create,
-    myInfo
+    myInfo,
+    infoAdmin
 }
