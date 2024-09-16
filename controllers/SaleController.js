@@ -172,8 +172,114 @@ const infoAdmin = async (req, res) => {
     });
 }
 
+const getSalesByDate = async (req, res) => {
+    let userId = req.user.id;
+    let sede;
+    let date = req.query.date;
+
+    try {
+        const user = await User.findOne({ _id: userId });
+      
+        if (!user) {
+          return res.status(404).json({
+            "message": "No user available..."
+          });
+        }
+      
+        sede = user.sede;
+      
+    } catch (error) {
+        return res.status(500).json({
+            "message": "Error while finding user"
+        });
+    }
+    
+    Sale.find({ sede: sede }).populate({ path: 'detail', populate: 'product' }).then(sales => {
+        if (!sales) {
+            return res.status(404).json({
+                "message": "No sales avaliable..."
+            });
+        }
+
+        let salesInDate = [];
+        let minDate = new Date(date);
+        let maxDate = new Date(date);
+        maxDate.setDate(minDate.getDate() + 1);
+        let cash = 0;
+        let card = 0;
+
+        sales.forEach(sale => {
+            if (sale.date <= maxDate && sale.date >= minDate) {
+                salesInDate.push(sale);
+                sale.paymentMethod.forEach(payment => {
+                    if (payment.type == "Efectivo") {
+                        cash = cash + payment.amount;
+                    } else {
+                        card = card + payment.amount;
+                    }
+                });
+            }
+        });
+
+        return res.status(200).json({
+            "sales": salesInDate,
+            cash,
+            card
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while finding sales"
+        });
+    });
+}
+
+const getSalesByDateAndSede = async (req, res) => {
+    let sede = req.query.sede;
+    let date = req.query.date;
+
+    Sale.find({ sede: sede }).populate({ path: 'detail', populate: 'product' }).then(sales => {
+        if (!sales) {
+            return res.status(404).json({
+                "message": "No sales avaliable..."
+            });
+        }
+
+        let salesInDate = [];
+        let minDate = new Date(date);
+        let maxDate = new Date(date);
+        maxDate.setDate(minDate.getDate() + 1);
+        let cash = 0;
+        let card = 0;
+
+        sales.forEach(sale => {
+            if (sale.date <= maxDate && sale.date >= minDate) {
+                salesInDate.push(sale);
+                sale.paymentMethod.forEach(payment => {
+                    if (payment.type == "Efectivo") {
+                        cash = cash + payment.amount;
+                    } else {
+                        card = card + payment.amount;
+                    }
+                });
+            }
+        });
+
+        return res.status(200).json({
+            "sales": salesInDate,
+            cash,
+            card
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while finding sales"
+        });
+    });
+}
+
 module.exports = {
     create,
     myInfo,
-    infoAdmin
+    infoAdmin,
+    getSalesByDate,
+    getSalesByDateAndSede
 }

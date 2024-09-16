@@ -12,10 +12,16 @@ const CloseSalesDaySchema = Schema({
         type: Schema.ObjectId,
         ref: "User"
     },
-    sale: [{
+    sales: [{
         type: Schema.ObjectId,
         ref: "Sale"
-    }]
+    }],
+    cashAmount: {
+        type: Number
+    },
+    cardAmount: {
+        type: Number
+    }
 });
 
 module.exports = model("CloseSalesDay", CloseSalesDaySchema, "closeSalesDays");

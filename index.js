@@ -12,7 +12,6 @@ const app = express();
 const port = process.env.PORT;
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 const UserRoutes = require("./routes/UserRoutes");
 app.use("/api/users", UserRoutes);
@@ -26,6 +25,8 @@ const RemissionGuideRoutes = require("./routes/RemissionGuideRoutes");
 app.use("/api/remission-guides", RemissionGuideRoutes);
 const SaleRoutes = require("./routes/SaleRoutes");
 app.use("/api/sales", SaleRoutes);
+const CloseSalesDayRoutes = require("./routes/CloseSalesDayRoutes");
+app.use("/api/close-sales-day", CloseSalesDayRoutes);
 
 app.get("/test-route", (_req, res) => {
     return res.status(200).json({
