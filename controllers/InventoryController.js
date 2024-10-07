@@ -39,7 +39,7 @@ const create = async (req, res) => {
 const getBySede = (req, res) => {
     let sede = req.query.sede;
 
-    Inventory.find({ sede: sede }).populate('product').then(inventories => {
+    Inventory.find({ sede: sede }).populate('product').limit(9).then(inventories => {
         if (!inventories) {
             return res.status(404).json({
                 "message": "No inventories avaliable..."
@@ -96,7 +96,7 @@ const getByMySede = async (req, res) => {
         });
     }
 
-    Inventory.find({ sede: sede }).populate('product').then(inventories => {
+    Inventory.find({ sede: sede }).populate('product').limit(9).then(inventories => {
         if (!inventories) {
             return res.status(404).json({
                 "message": "No inventories avaliable..."
@@ -116,7 +116,7 @@ const getByMySede = async (req, res) => {
 const getAvailableBySede = (req, res) => {
     let sede = req.query.sede;
 
-    Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate('product').then(inventories => {
+    Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate('product').limit(10).then(inventories => {
         if (!inventories) {
             return res.status(404).json({
                 "message": "No inventories avaliable..."
@@ -133,7 +133,45 @@ const getAvailableBySede = (req, res) => {
     });
 }
 
-const searchProductBySede = (req, res) => {
+const getAvailableByMySede = async (req, res) => {
+    let userId = req.user.id;
+    let sede;
+
+    try {
+        const user = await User.findOne({ _id: userId });
+      
+        if (!user) {
+          return res.status(404).json({
+            "message": "No user available..."
+          });
+        }
+      
+        sede = user.sede;
+      
+    } catch (error) {
+        return res.status(500).json({
+            "message": "Error while finding user"
+        });
+    }
+
+    Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate('product').limit(9).then(inventories => {
+        if (!inventories) {
+            return res.status(404).json({
+                "message": "No inventories avaliable..."
+            });
+        }
+
+        return res.status(200).json({
+            inventories
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while finding inventories"
+        });
+    });
+}
+
+const searchProductStockBySede = (req, res) => {
     let sede = req.query.sede;
     let productName = req.query.productName;
 
@@ -155,7 +193,29 @@ const searchProductBySede = (req, res) => {
     });
 }
 
-const searchProductsByMySede = async (req, res) => {
+const searchProductAvailableBySede = (req, res) => {
+    let sede = req.query.sede;
+    let productName = req.query.productName;
+
+    Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
+        inventories = inventories.filter(inventory => inventory.product);
+        if (!inventories) {
+            return res.status(404).json({
+                "message": "No inventories avaliable..."
+            });
+        }
+
+        return res.status(200).json({
+            inventories
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while finding inventories"
+        });
+    });
+}
+
+const searchProductsStockByMySede = async (req, res) => {
     let userId = req.user.id;
     let productName = req.query.productName;
     let sede;
@@ -195,12 +255,55 @@ const searchProductsByMySede = async (req, res) => {
     });
 }
 
+const searchProductsAvailableByMySede = async (req, res) => {
+    let userId = req.user.id;
+    let productName = req.query.productName;
+    let sede;
+
+    try {
+        const user = await User.findOne({ _id: userId });
+      
+        if (!user) {
+          return res.status(404).json({
+            "message": "No user available..."
+          });
+        }
+        
+        sede = user.sede;
+      
+    } catch (error) {
+        return res.status(500).json({
+            "message": "Error while finding user"
+        });
+    }
+    
+    Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
+        inventories = inventories.filter(inventory => inventory.product);
+        if (!inventories) {
+            return res.status(404).json({
+                "message": "No inventories avaliable..."
+            });
+        }
+
+        return res.status(200).json({
+            inventories
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while finding inventories"
+        });
+    });
+}
+
 module.exports = {
     create,
     getBySede,
     update,
     getByMySede,
     getAvailableBySede,
-    searchProductBySede,
-    searchProductsByMySede
+    getAvailableByMySede,
+    searchProductStockBySede,
+    searchProductAvailableBySede,
+    searchProductsStockByMySede,
+    searchProductsAvailableByMySede
 }
