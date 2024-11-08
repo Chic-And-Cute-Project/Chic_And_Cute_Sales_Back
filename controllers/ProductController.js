@@ -50,11 +50,15 @@ const create = async (req, res) => {
     }
 }
 
-const list = (_req, res) => {
-    Product.find().then(products => {
-        if (!products) {
+const listByPage = (req, res) => {
+    let page = Number(req.query.page);
+    let skipvalue = page == 0 ? 0 : page * 10;
+
+    Product.find().limit(10).skip(skipvalue).then(products => {
+        if (products.length == 0) {
             return res.status(404).json({
-                "message": "No prouducts avaliable..."
+                "status": "error",
+                "message": "No existen productos"
             });
         }
 
@@ -63,12 +67,26 @@ const list = (_req, res) => {
         });
     }).catch(() => {
         return res.status(500).json({
+            "status": "error",
             "message": "Error while finding products"
+        });
+    });
+}
+
+const getCount = (_req, res) => {
+    Product.countDocuments().then(count => {
+        return res.status(200).json({
+            count
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while getting products counter"
         });
     });
 }
 
 module.exports = {
     create,
-    list
+    listByPage,
+    getCount
 }
