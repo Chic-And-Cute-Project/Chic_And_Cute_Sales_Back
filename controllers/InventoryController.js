@@ -152,6 +152,8 @@ const getCountBySedeAndAvailable = (req, res) => {
 const getAvailableByMySede = async (req, res) => {
     let userId = req.user.id;
     let sede;
+    let page = Number(req.query.page);
+    let skipvalue = page == 0 ? 0 : page * 10;
 
     try {
         const user = await User.findOne({ _id: userId });
@@ -170,7 +172,7 @@ const getAvailableByMySede = async (req, res) => {
         });
     }
 
-    Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate('product').limit(9).then(inventories => {
+    Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate('product').limit(10).skip(skipvalue).then(inventories => {
         if (!inventories) {
             return res.status(404).json({
                 "message": "No inventories avaliable..."
@@ -183,6 +185,38 @@ const getAvailableByMySede = async (req, res) => {
     }).catch(() => {
         return res.status(500).json({
             "message": "Error while finding inventories"
+        });
+    });
+}
+
+const getCountByMySedeAndAvailable = async (req, res) => {
+    let userId = req.user.id;
+    let sede;
+
+    try {
+        const user = await User.findOne({ _id: userId });
+      
+        if (!user) {
+          return res.status(404).json({
+            "message": "No user available..."
+          });
+        }
+      
+        sede = user.sede;
+      
+    } catch (error) {
+        return res.status(500).json({
+            "message": "Error while finding user"
+        });
+    }
+
+    Inventory.countDocuments({ sede: sede, quantity: { $ne: 0 } }).then(count => {
+        return res.status(200).json({
+            count
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while getting products counter"
         });
     });
 }
@@ -301,6 +335,8 @@ const searchProductsAvailableByMySede = async (req, res) => {
     let userId = req.user.id;
     let productName = req.query.productName;
     let sede;
+    let page = Number(req.query.page);
+    let skipvalue = page == 0 ? 0 : page * 10;
 
     try {
         const user = await User.findOne({ _id: userId });
@@ -327,8 +363,50 @@ const searchProductsAvailableByMySede = async (req, res) => {
             });
         }
 
+        const paginatedInventories = inventories.slice(skipvalue, skipvalue + 10);
+
         return res.status(200).json({
-            inventories
+            "inventories": paginatedInventories
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while finding inventories"
+        });
+    });
+}
+
+const getCountByMySedeAndProductAndAvailable = async (req, res) => {
+    let userId = req.user.id;
+    let sede;
+    let productName = req.query.productName;
+
+    try {
+        const user = await User.findOne({ _id: userId });
+      
+        if (!user) {
+          return res.status(404).json({
+            "message": "No user available..."
+          });
+        }
+        
+        sede = user.sede;
+      
+    } catch (error) {
+        return res.status(500).json({
+            "message": "Error while finding user"
+        });
+    }
+
+    Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
+        inventories = inventories.filter(inventory => inventory.product);
+        if (!inventories) {
+            return res.status(404).json({
+                "message": "No inventories avaliable..."
+            });
+        }
+
+        return res.status(200).json({
+            "count": inventories.length
         });
     }).catch(() => {
         return res.status(500).json({
@@ -345,9 +423,11 @@ module.exports = {
     getAvailableBySede,
     getCountBySedeAndAvailable,
     getAvailableByMySede,
+    getCountByMySedeAndAvailable,
     searchProductStockBySede,
     searchProductAvailableBySede,
     getCountBySedeAndProductAndAvailable,
     searchProductsStockByMySede,
-    searchProductsAvailableByMySede
+    searchProductsAvailableByMySede,
+    getCountByMySedeAndProductAndAvailable
 }

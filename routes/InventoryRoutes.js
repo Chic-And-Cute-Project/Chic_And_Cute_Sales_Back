@@ -11,10 +11,12 @@ router.get("/mySede", check.auth, InventoryController.getByMySede);
 router.get("/availableSedePages", InventoryController.getAvailableBySede);
 router.get("/countBySedeAndAvailable", InventoryController.getCountBySedeAndAvailable);
 router.get("/myAvailableSede", check.auth, InventoryController.getAvailableByMySede);
+router.get("/countByMySedeAndAvailable", check.auth, InventoryController.getCountByMySedeAndAvailable);
 router.get("/searchStock", InventoryController.searchProductStockBySede);
 router.get("/searchAvailablePages", InventoryController.searchProductAvailableBySede);
 router.get("/countBySedeAndProductAndAvailable", InventoryController.getCountBySedeAndProductAndAvailable);
 router.get("/mySearchStock", check.auth, InventoryController.searchProductsStockByMySede);
 router.get("/mySearchAvailable", check.auth, InventoryController.searchProductsAvailableByMySede);
+router.get("/countByMySedeAndProductAndAvailable", check.auth, InventoryController.getCountByMySedeAndProductAndAvailable);
 
 module.exports = router;
