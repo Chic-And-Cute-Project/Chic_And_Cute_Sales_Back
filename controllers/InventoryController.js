@@ -94,6 +94,8 @@ const update = (req, res) => {
 const getByMySede = async (req, res) => {
     let userId = req.user.id;
     let sede;
+    let page = Number(req.query.page);
+    let skipvalue = page == 0 ? 0 : page * 10;
 
     try {
         const user = await User.findOne({ _id: userId });
@@ -112,7 +114,7 @@ const getByMySede = async (req, res) => {
         });
     }
 
-    Inventory.find({ sede: sede }).populate('product').limit(9).then(inventories => {
+    Inventory.find({ sede: sede }).populate('product').limit(10).skip(skipvalue).then(inventories => {
         if (!inventories) {
             return res.status(404).json({
                 "message": "No inventories avaliable..."
@@ -125,6 +127,38 @@ const getByMySede = async (req, res) => {
     }).catch(() => {
         return res.status(500).json({
             "message": "Error while finding inventories"
+        });
+    });
+}
+
+const getCountByMySede = async (req, res) => {
+    let userId = req.user.id;
+    let sede;
+
+    try {
+        const user = await User.findOne({ _id: userId });
+      
+        if (!user) {
+          return res.status(404).json({
+            "message": "No user available..."
+          });
+        }
+      
+        sede = user.sede;
+      
+    } catch (error) {
+        return res.status(500).json({
+            "message": "Error while finding user"
+        });
+    }
+
+    Inventory.countDocuments({ sede: sede }).then(count => {
+        return res.status(200).json({
+            count
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while getting products counter"
         });
     });
 }
@@ -337,6 +371,8 @@ const searchProductsStockByMySede = async (req, res) => {
     let userId = req.user.id;
     let productName = req.query.productName;
     let sede;
+    let page = Number(req.query.page);
+    let skipvalue = page == 0 ? 0 : page * 10;
 
     try {
         const user = await User.findOne({ _id: userId });
@@ -362,9 +398,50 @@ const searchProductsStockByMySede = async (req, res) => {
                 "message": "No inventories avaliable..."
             });
         }
+        const paginatedInventories = inventories.slice(skipvalue, skipvalue + 10);
 
         return res.status(200).json({
-            inventories
+            "inventories": paginatedInventories
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while finding inventories"
+        });
+    });
+}
+
+const getCountByMySedeAndProduct = async (req, res) => {
+    let userId = req.user.id;
+    let sede;
+    let productName = req.query.productName;
+
+    try {
+        const user = await User.findOne({ _id: userId });
+      
+        if (!user) {
+          return res.status(404).json({
+            "message": "No user available..."
+          });
+        }
+        
+        sede = user.sede;
+      
+    } catch (error) {
+        return res.status(500).json({
+            "message": "Error while finding user"
+        });
+    }
+
+    Inventory.find({ sede: sede }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
+        inventories = inventories.filter(inventory => inventory.product);
+        if (!inventories) {
+            return res.status(404).json({
+                "message": "No inventories avaliable..."
+            });
+        }
+
+        return res.status(200).json({
+            "count": inventories.length
         });
     }).catch(() => {
         return res.status(500).json({
@@ -463,6 +540,7 @@ module.exports = {
     getCountBySede,
     update,
     getByMySede,
+    getCountByMySede,
     getAvailableBySede,
     getCountBySedeAndAvailable,
     getAvailableByMySede,
@@ -472,6 +550,7 @@ module.exports = {
     searchProductAvailableBySede,
     getCountBySedeAndProductAndAvailable,
     searchProductsStockByMySede,
+    getCountByMySedeAndProduct,
     searchProductsAvailableByMySede,
     getCountByMySedeAndProductAndAvailable
 }
