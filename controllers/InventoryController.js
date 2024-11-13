@@ -38,8 +38,10 @@ const create = async (req, res) => {
 
 const getBySede = (req, res) => {
     let sede = req.query.sede;
+    let page = Number(req.query.page);
+    let skipvalue = page == 0 ? 0 : page * 10;
 
-    Inventory.find({ sede: sede }).populate('product').limit(9).then(inventories => {
+    Inventory.find({ sede: sede }).populate('product').limit(10).skip(skipvalue).then(inventories => {
         if (!inventories) {
             return res.status(404).json({
                 "message": "No inventories avaliable..."
@@ -49,9 +51,23 @@ const getBySede = (req, res) => {
         return res.status(200).json({
             inventories
         });
-    }).catch(error => {
+    }).catch(() => {
         return res.status(500).json({
             "message": "Error while finding inventories"
+        });
+    });
+}
+
+const getCountBySede = (req, res) => {
+    let sede = req.query.sede;
+
+    Inventory.countDocuments({ sede: sede }).then(count => {
+        return res.status(200).json({
+            count
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while getting products counter"
         });
     });
 }
@@ -224,6 +240,32 @@ const getCountByMySedeAndAvailable = async (req, res) => {
 const searchProductStockBySede = (req, res) => {
     let sede = req.query.sede;
     let productName = req.query.productName;
+    let page = Number(req.query.page);
+    let skipvalue = page == 0 ? 0 : page * 10;
+
+    Inventory.find({ sede: sede }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
+        inventories = inventories.filter(inventory => inventory.product);
+        if (!inventories) {
+            return res.status(404).json({
+                "message": "No inventories avaliable..."
+            });
+        }
+
+        const paginatedInventories = inventories.slice(skipvalue, skipvalue + 10);
+
+        return res.status(200).json({
+            "inventories": paginatedInventories
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while finding inventories"
+        });
+    });
+}
+
+const getCountBySedeAndProduct = (req, res) => {
+    let sede = req.query.sede;
+    let productName = req.query.productName;
 
     Inventory.find({ sede: sede }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
         inventories = inventories.filter(inventory => inventory.product);
@@ -234,7 +276,7 @@ const searchProductStockBySede = (req, res) => {
         }
 
         return res.status(200).json({
-            inventories
+            "count": inventories.length
         });
     }).catch(() => {
         return res.status(500).json({
@@ -418,6 +460,7 @@ const getCountByMySedeAndProductAndAvailable = async (req, res) => {
 module.exports = {
     create,
     getBySede,
+    getCountBySede,
     update,
     getByMySede,
     getAvailableBySede,
@@ -425,6 +468,7 @@ module.exports = {
     getAvailableByMySede,
     getCountByMySedeAndAvailable,
     searchProductStockBySede,
+    getCountBySedeAndProduct,
     searchProductAvailableBySede,
     getCountBySedeAndProductAndAvailable,
     searchProductsStockByMySede,
