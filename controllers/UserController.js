@@ -114,6 +114,24 @@ const profile = (req, res) => {
     });
 }
 
+const getAll = (_req, res) => {
+    User.find().then(users => {
+        if (!users) {
+            return res.status(404).json({
+                "message": "No users avaliable..."
+            });
+        }
+
+        return res.status(200).json({
+            users
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while finding users"
+        });
+    });
+}
+
 const getAllUserSales = (_req, res) => {
     User.find({ role: { $ne: "Admin" } }).then(users => {
         if (!users) {
@@ -173,6 +191,7 @@ module.exports = {
     register,
     loginUser,
     profile,
+    getAll,
     getAllUserSales,
     updateUser,
     searchUserSales
