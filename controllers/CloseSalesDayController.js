@@ -62,7 +62,7 @@ const createFromAdmin = async (req, res) => {
     let closeSalesDayBody = req.body;
     let userId = req.user.id;
 
-    if (!closeSalesDayBody.sede || !closeSalesDayBody.sales || !closeSalesDayBody.cashAmount || !closeSalesDayBody.cardAmount) {
+    if (!closeSalesDayBody.sede || !closeSalesDayBody.sales) {
         return res.status(400).json({
             "message": "Faltan datos"
         });
