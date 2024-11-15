@@ -123,10 +123,48 @@ const update = (req, res) => {
     });
 }
 
+const searchProduct = (req, res) => {
+    let productName = req.query.productName;
+    let page = Number(req.query.page);
+    let skipvalue = page == 0 ? 0 : page * 10;
+
+    Product.find({ fullName: { $regex: productName, $options: 'i' } }).limit(10).skip(skipvalue).then(products => {
+        if (!products) {
+            return res.status(404).json({
+                "message": "No products avaliable..."
+            });
+        }
+
+        return res.status(200).json({
+            products
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while finding products"
+        });
+    });
+}
+
+const getCountByProduct = (req, res) => {
+    let productName = req.query.productName;
+
+    Product.countDocuments({ fullName: { $regex: productName, $options: 'i' } }).then(count => {
+        return res.status(200).json({
+            count
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while getting products counter"
+        });
+    });
+}
+
 module.exports = {
     create,
     listByPage,
     getCount,
     deleteById,
-    update
+    update,
+    searchProduct,
+    getCountByProduct
 }
