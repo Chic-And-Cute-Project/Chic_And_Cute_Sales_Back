@@ -23,5 +23,6 @@ router.get("/countByMySedeAndProduct", check.auth, InventoryController.getCountB
 router.get("/mySearchAvailable", check.auth, InventoryController.searchProductsAvailableByMySede);
 router.get("/countByMySedeAndProductAndAvailable", check.auth, InventoryController.getCountByMySedeAndProductAndAvailable);
 router.get("/productIdAndSede", InventoryController.getByProductIdAndSede);
+router.delete("/", InventoryController.deleteBySedeAndProductId);
 
 module.exports = router;

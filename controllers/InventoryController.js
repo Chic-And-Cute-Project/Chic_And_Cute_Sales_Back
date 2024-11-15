@@ -555,6 +555,26 @@ const getByProductIdAndSede = (req, res) => {
     });
 }
 
+const deleteBySedeAndProductId = async (req, res) => {
+    let sede = req.query.sede;
+    let productId = req.query.productId;
+
+    Inventory.findOneAndDelete({ sede: sede, product: productId }).then(inventoryDeleted => {
+        if (!inventoryDeleted) {
+            return res.status(404).json({
+                "message": "No inventory found"
+            });
+        }
+        return res.status(200).json({
+            "message": "Inventory deleted successfully"
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while deleting inventory"
+        });
+    });
+}
+
 module.exports = {
     create,
     getBySede,
@@ -574,5 +594,6 @@ module.exports = {
     getCountByMySedeAndProduct,
     searchProductsAvailableByMySede,
     getCountByMySedeAndProductAndAvailable,
-    getByProductIdAndSede
+    getByProductIdAndSede,
+    deleteBySedeAndProductId
 }
