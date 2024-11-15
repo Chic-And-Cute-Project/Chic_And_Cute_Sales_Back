@@ -4,7 +4,7 @@ const User = require("../models/UserModel");
 const create = async (req, res) => {
     let remissionGuideBody = req.body;
 
-    if (!remissionGuideBody.date || !remissionGuideBody.sedeFrom || !remissionGuideBody.sedeFrom) {
+    if (!remissionGuideBody.date || !remissionGuideBody.sedeFrom || !remissionGuideBody.sedeFrom || !remissionGuideBody.identifier) {
         return res.status(400).json({
             "message": "Faltan datos"
         });
@@ -14,7 +14,8 @@ const create = async (req, res) => {
         date: remissionGuideBody.date,
         sedeFrom: remissionGuideBody.sedeFrom,
         sedeTo: remissionGuideBody.sedeTo,
-        products: remissionGuideBody.products
+        products: remissionGuideBody.products,
+        identifier: remissionGuideBody.identifier
     }
 
     let remission_guide_to_save = new RemissionGuide(remissionGuideData);

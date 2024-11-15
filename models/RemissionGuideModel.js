@@ -24,6 +24,9 @@ const RemissionGuideSchema = Schema({
     status: {
         type: String,
         default: "Pendiente"
+    },
+    identifier: {
+        type: String
     }
 });
 
