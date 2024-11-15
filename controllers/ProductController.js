@@ -104,9 +104,29 @@ const deleteById = async (req, res) => {
     });
 }
 
+const update = (req, res) => {
+    let id = req.query.productId;
+
+    Product.findOneAndUpdate({ _id: id }, req.body, { new: true }).then(productUpdated => {
+        if (!productUpdated) {
+            return res.status(404).json({
+                "mensaje": "Product not found"
+            });
+        }
+        return res.status(200).send({
+            product: productUpdated
+        });
+    }).catch(() => {
+        return res.status(404).json({
+            "mensaje": "Error while finding and updating product"
+        });
+    });
+}
+
 module.exports = {
     create,
     listByPage,
     getCount,
-    deleteById
+    deleteById,
+    update
 }
