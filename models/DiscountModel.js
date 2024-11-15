@@ -6,6 +6,9 @@ const DiscountSchema = Schema({
     },
     quantity: {
         type: Number
+    },
+    productId: {
+        type: String
     }
 });
 

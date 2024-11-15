@@ -159,6 +159,26 @@ const getCountByProduct = (req, res) => {
     });
 }
 
+const getByCode = (req, res) => {
+    let productCode = req.query.productCode;
+
+    Product.findOne({ code: productCode }).then(product => {
+        if (!product) {
+            return res.status(404).json({
+                "message": "No existe producto"
+            });
+        }
+
+        return res.status(200).json({
+            product
+        });
+    }).catch(() => {
+        return res.status(500).json({
+            "message": "Error while finding product"
+        });
+    });
+}
+
 module.exports = {
     create,
     listByPage,
@@ -166,5 +186,6 @@ module.exports = {
     deleteById,
     update,
     searchProduct,
-    getCountByProduct
+    getCountByProduct,
+    getByCode
 }

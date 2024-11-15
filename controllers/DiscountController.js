@@ -9,9 +9,19 @@ const create = async (req, res) => {
         });
     }
 
-    let discountData = {
-        name: discountBody.name,
-        quantity: discountBody.quantity
+    let discountData;
+
+    if (discountBody.productId) {
+        discountData = {
+            name: discountBody.name,
+            quantity: discountBody.quantity,
+            productId: discountBody.productId
+        }
+    } else {
+        discountData = {
+            name: discountBody.name,
+            quantity: discountBody.quantity
+        }
     }
 
     try {
