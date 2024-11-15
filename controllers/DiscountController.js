@@ -67,7 +67,27 @@ const list = (_req, res) => {
     });
 }
 
+const update = (req, res) => {
+    let id = req.query.discountId;
+
+    Discount.findOneAndUpdate({ _id: id }, req.body, { new: true }).then(discountUpdated => {
+        if (!discountUpdated) {
+            return res.status(404).json({
+                "mensaje": "Discount not found"
+            });
+        }
+        return res.status(200).send({
+            discount: discountUpdated
+        });
+    }).catch(() => {
+        return res.status(404).json({
+            "mensaje": "Error while finding and updating discount"
+        });
+    });
+}
+
 module.exports = {
     create,
-    list
+    list,
+    update
 }
