@@ -30,7 +30,7 @@ app.use("/api/close-sales-day", CloseSalesDayRoutes);
 
 app.get("/test-route", (_req, res) => {
     return res.status(200).json({
-        "version": "1.2.0"
+        "version": "2.0.0"
     });
 });
 
