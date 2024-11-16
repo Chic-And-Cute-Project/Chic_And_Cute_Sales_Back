@@ -11,12 +11,26 @@ const create = async (req, res) => {
         });
     }
 
-    let saleData = {
-        sede: saleBody.sede,
-        user: userId,
-        paymentMethod: saleBody.paymentMethod,
-        detail: saleBody.detail
+    let saleData;
+
+    if (!saleBody.date) {
+        saleData = {
+            sede: saleBody.sede,
+            user: userId,
+            paymentMethod: saleBody.paymentMethod,
+            detail: saleBody.detail
+        }
+    } else {
+        saleData = {
+            sede: saleBody.sede,
+            user: userId,
+            paymentMethod: saleBody.paymentMethod,
+            detail: saleBody.detail,
+            date: saleBody.date
+        }
     }
+
+    
 
     let sale_to_save = new Sale(saleData);
 
