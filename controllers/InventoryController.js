@@ -277,18 +277,29 @@ const searchProductStockBySede = (req, res) => {
     let page = Number(req.query.page);
     let skipvalue = page == 0 ? 0 : page * 10;
 
-    Inventory.find({ sede: sede }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
-        inventories = inventories.filter(inventory => inventory.product);
+    Inventory.aggregate([
+        { $match: { sede: sede } },
+        {
+            $lookup: {
+                from: 'products',
+                localField: 'product',
+                foreignField: '_id',
+                as: 'product'
+            }
+        },
+        { $unwind: '$product' },
+        { $match: { 'product.fullName': { $regex: productName, $options: 'i' } } },
+        { $skip: skipvalue },
+        { $limit: 10 }
+    ]).then(inventories => {
         if (!inventories) {
             return res.status(404).json({
                 "message": "No inventories avaliable..."
             });
         }
 
-        const paginatedInventories = inventories.slice(skipvalue, skipvalue + 10);
-
         return res.status(200).json({
-            "inventories": paginatedInventories
+            inventories
         });
     }).catch(() => {
         return res.status(500).json({
@@ -301,17 +312,29 @@ const getCountBySedeAndProduct = (req, res) => {
     let sede = req.query.sede;
     let productName = req.query.productName;
 
-    Inventory.find({ sede: sede }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
-        inventories = inventories.filter(inventory => inventory.product);
-        if (!inventories) {
-            return res.status(404).json({
-                "message": "No inventories avaliable..."
+    Inventory.aggregate([
+        { $match: { sede: sede } },
+        {
+            $lookup: {
+                from: 'products',
+                localField: 'product',
+                foreignField: '_id',
+                as: 'product'
+            }
+        },
+        { $unwind: '$product' },
+        { $match: { 'product.fullName': { $regex: productName, $options: 'i' } } },
+        { $count: "count" }
+    ]).then(result => {
+        if (result.length == 0) {
+            return res.status(200).json({
+                "count": 0
+            });
+        } else {
+            return res.status(200).json({
+                "count": result[0].count
             });
         }
-
-        return res.status(200).json({
-            "count": inventories.length
-        });
     }).catch(() => {
         return res.status(500).json({
             "message": "Error while finding inventories"
@@ -325,18 +348,29 @@ const searchProductAvailableBySede = (req, res) => {
     let page = Number(req.query.page);
     let skipvalue = page == 0 ? 0 : page * 10;
 
-    Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
-        inventories = inventories.filter(inventory => inventory.product);
+    Inventory.aggregate([
+        { $match: { sede: sede, quantity: { $ne: 0 } } },
+        {
+            $lookup: {
+                from: 'products',
+                localField: 'product',
+                foreignField: '_id',
+                as: 'product'
+            }
+        },
+        { $unwind: '$product' },
+        { $match: { 'product.fullName': { $regex: productName, $options: 'i' } } },
+        { $skip: skipvalue },
+        { $limit: 10 }
+    ]).then(inventories => {
         if (!inventories) {
             return res.status(404).json({
                 "message": "No inventories avaliable..."
             });
         }
 
-        const paginatedInventories = inventories.slice(skipvalue, skipvalue + 10);
-
         return res.status(200).json({
-            "inventories": paginatedInventories
+            inventories
         });
     }).catch(() => {
         return res.status(500).json({
@@ -349,17 +383,29 @@ const getCountBySedeAndProductAndAvailable = (req, res) => {
     let sede = req.query.sede;
     let productName = req.query.productName;
 
-    Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
-        inventories = inventories.filter(inventory => inventory.product);
-        if (!inventories) {
-            return res.status(404).json({
-                "message": "No inventories avaliable..."
+    Inventory.aggregate([
+        { $match: { sede: sede, quantity: { $ne: 0 } } },
+        {
+            $lookup: {
+                from: 'products',
+                localField: 'product',
+                foreignField: '_id',
+                as: 'product'
+            }
+        },
+        { $unwind: '$product' },
+        { $match: { 'product.fullName': { $regex: productName, $options: 'i' } } },
+        { $count: "count" }
+    ]).then(result => {
+        if (result.length == 0) {
+            return res.status(200).json({
+                "count": 0
+            });
+        } else {
+            return res.status(200).json({
+                "count": result[0].count
             });
         }
-
-        return res.status(200).json({
-            "count": inventories.length
-        });
     }).catch(() => {
         return res.status(500).json({
             "message": "Error while finding inventories"
@@ -391,17 +437,29 @@ const searchProductsStockByMySede = async (req, res) => {
         });
     }
     
-    Inventory.find({ sede: sede }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
-        inventories = inventories.filter(inventory => inventory.product);
+    Inventory.aggregate([
+        { $match: { sede: sede } },
+        {
+            $lookup: {
+                from: 'products',
+                localField: 'product',
+                foreignField: '_id',
+                as: 'product'
+            }
+        },
+        { $unwind: '$product' },
+        { $match: { 'product.fullName': { $regex: productName, $options: 'i' } } },
+        { $skip: skipvalue },
+        { $limit: 10 }
+    ]).then(inventories => {
         if (!inventories) {
             return res.status(404).json({
                 "message": "No inventories avaliable..."
             });
         }
-        const paginatedInventories = inventories.slice(skipvalue, skipvalue + 10);
 
         return res.status(200).json({
-            "inventories": paginatedInventories
+            inventories
         });
     }).catch(() => {
         return res.status(500).json({
@@ -432,17 +490,29 @@ const getCountByMySedeAndProduct = async (req, res) => {
         });
     }
 
-    Inventory.find({ sede: sede }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
-        inventories = inventories.filter(inventory => inventory.product);
-        if (!inventories) {
-            return res.status(404).json({
-                "message": "No inventories avaliable..."
+    Inventory.aggregate([
+        { $match: { sede: sede } },
+        {
+            $lookup: {
+                from: 'products',
+                localField: 'product',
+                foreignField: '_id',
+                as: 'product'
+            }
+        },
+        { $unwind: '$product' },
+        { $match: { 'product.fullName': { $regex: productName, $options: 'i' } } },
+        { $count: "count" }
+    ]).then(result => {
+        if (result.length == 0) {
+            return res.status(200).json({
+                "count": 0
+            });
+        } else {
+            return res.status(200).json({
+                "count": result[0].count
             });
         }
-
-        return res.status(200).json({
-            "count": inventories.length
-        });
     }).catch(() => {
         return res.status(500).json({
             "message": "Error while finding inventories"
@@ -474,18 +544,29 @@ const searchProductsAvailableByMySede = async (req, res) => {
         });
     }
     
-    Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
-        inventories = inventories.filter(inventory => inventory.product);
+    Inventory.aggregate([
+        { $match: { sede: sede, quantity: { $ne: 0 } } },
+        {
+            $lookup: {
+                from: 'products',
+                localField: 'product',
+                foreignField: '_id',
+                as: 'product'
+            }
+        },
+        { $unwind: '$product' },
+        { $match: { 'product.fullName': { $regex: productName, $options: 'i' } } },
+        { $skip: skipvalue },
+        { $limit: 10 }
+    ]).then(inventories => {
         if (!inventories) {
             return res.status(404).json({
                 "message": "No inventories avaliable..."
             });
         }
 
-        const paginatedInventories = inventories.slice(skipvalue, skipvalue + 10);
-
         return res.status(200).json({
-            "inventories": paginatedInventories
+            inventories
         });
     }).catch(() => {
         return res.status(500).json({
@@ -516,17 +597,29 @@ const getCountByMySedeAndProductAndAvailable = async (req, res) => {
         });
     }
 
-    Inventory.find({ sede: sede, quantity: { $ne: 0 } }).populate({ path: 'product', match: { fullName: { $regex: productName, $options: 'i' } } }).then(inventories => {
-        inventories = inventories.filter(inventory => inventory.product);
-        if (!inventories) {
-            return res.status(404).json({
-                "message": "No inventories avaliable..."
+    Inventory.aggregate([
+        { $match: { sede: sede, quantity: { $ne: 0 } } },
+        {
+            $lookup: {
+                from: 'products',
+                localField: 'product',
+                foreignField: '_id',
+                as: 'product'
+            }
+        },
+        { $unwind: '$product' },
+        { $match: { 'product.fullName': { $regex: productName, $options: 'i' } } },
+        { $count: "count" }
+    ]).then(result => {
+        if (result.length == 0) {
+            return res.status(200).json({
+                "count": 0
+            });
+        } else {
+            return res.status(200).json({
+                "count": result[0].count
             });
         }
-
-        return res.status(200).json({
-            "count": inventories.length
-        });
     }).catch(() => {
         return res.status(500).json({
             "message": "Error while finding inventories"

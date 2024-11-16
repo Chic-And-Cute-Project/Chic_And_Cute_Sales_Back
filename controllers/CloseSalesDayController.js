@@ -120,7 +120,10 @@ const getByMySede = async (req, res) => {
         });
     }
     
-    CloseSalesDay.find({ sede: sede }).populate([{path: 'user'}, {path: 'sales', populate: {path: 'detail', populate: 'product'}}]).then(closeSalesDays => {
+    CloseSalesDay.find({ sede: sede, date: {
+        $gte: minDate,
+        $lte: maxDate
+    }}).populate([{ path: 'user' }, { path: 'sales', populate: { path: 'detail', populate: 'product' } }]).then(closeSalesDays => {
         if (!closeSalesDays) {
             return res.status(404).json({
                 "message": "No close sales days avaliable..."
@@ -146,16 +149,15 @@ const getBySede = async (req, res) => {
     let minDate = new Date(req.query.minDate);
     let maxDate = new Date(req.query.maxDate);
 
-    CloseSalesDay.find({ sede: sede }).populate([{path: 'user'}, {path: 'sales', populate: {path: 'detail', populate: 'product'}}]).then(closeSalesDays => {
+    CloseSalesDay.find({ sede: sede, date: {
+        $gte: minDate,
+        $lte: maxDate
+    }}).populate([{ path: 'user' }, { path: 'sales', populate: { path: 'detail', populate: 'product' } }]).then(closeSalesDays => {
         if (!closeSalesDays) {
             return res.status(404).json({
                 "message": "No close sales days avaliable..."
             });
         }
-
-        closeSalesDays = closeSalesDays.filter(closeDalesDay => {
-            return closeDalesDay.date <= maxDate && closeDalesDay.date >= minDate
-        });
 
         return res.status(200).json({
             closeSalesDays
