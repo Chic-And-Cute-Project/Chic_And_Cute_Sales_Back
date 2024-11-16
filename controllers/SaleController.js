@@ -107,6 +107,7 @@ const myInfo = async (req, res) => {
 
         return res.status(200).json({
             saleDetails,
+            "salesCount": sales.length,
             cash,
             card
         });
@@ -168,6 +169,7 @@ const infoAdmin = async (req, res) => {
 
         return res.status(200).json({
             saleDetails,
+            "salesCount": sales.length,
             cash,
             card
         });
