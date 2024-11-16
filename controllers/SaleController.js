@@ -244,7 +244,9 @@ const getSalesByDateAndSede = async (req, res) => {
     let maxDate = new Date(req.query.date);
     maxDate.setDate(minDate.getDate() + 1);
     let cash = 0;
+    let cashCounter = 0;
     let card = 0;
+    let cardCounter = 0;
 
     Sale.find({ sede: sede, date: {
         $gte: minDate,
@@ -260,8 +262,10 @@ const getSalesByDateAndSede = async (req, res) => {
             sale.paymentMethod.forEach(payment => {
                 if (payment.type == "Efectivo") {
                     cash += payment.amount;
+                    cashCounter++;
                 } else {
                     card += payment.amount;
+                    cardCounter++;
                 }
             });
         });
@@ -269,7 +273,9 @@ const getSalesByDateAndSede = async (req, res) => {
         return res.status(200).json({
             sales,
             cash,
-            card
+            cashCounter,
+            card,
+            cardCounter
         });
     }).catch(() => {
         return res.status(500).json({
